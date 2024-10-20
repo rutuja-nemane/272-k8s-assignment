@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item List</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <div class="container my-5">
+        <h1 class="text-center mb-4">Item List</h1>
+
+        <!-- Displaying the List of Items -->
+        <ul id="item-list" class="list-group mb-5">
+            {% for item in items %}
+                <li class="list-group-item d-flex justify-content-between align-items-center" id="item-{{ item.id }}">
+                    <div>
+                        <strong>{{ item.name }}</strong><br>
+                        <small>{{ item.description }}</small>
+                    </div>
+                    <form action="/delete_item/{{ item.id }}" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Add New Item Form -->
+        <h2 class="text-center mb-4">Add a New Item</h2>
+        <form id="add-item-form" class="border p-4 bg-white shadow rounded">
+            <div class="mb-3">
+                <label for="name" class="form-label">Item Name</label>
+                <input type="text" id="name" name="name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <input type="text" id="description" name="description" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Item</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Add a little JavaScript to handle form submission via AJAX -->
+    <script>
+        document.getElementById('add-item-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent full page reload
+
+            // Prepare form data
+            const formData = new FormData(this);
+            const name = formData.get('name');
+            const description = formData.get('description');
+
+            // Send data using Fetch API
+            fetch('/add_item', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: name, description: description })
+            })
+            .then(response => response.json())
+            .then(item => {
+                // Add the new item to the list
+                const itemList = document.getElementById('item-list');
+                const newItem = document.createElement('li');
+                newItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                newItem.innerHTML = `<div>
+                    <strong>${item.name}</strong><br>
+                    <small>${item.description}</small>
+                </div>
+                <form action="/delete_item/${item.id}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>`;
+                itemList.appendChild(newItem);
+            });
+
+            // Clear the form
+            this.reset();
+        });
+    </script>
+</body>
+</html>

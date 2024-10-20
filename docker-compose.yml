@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_RUN_HOST=0.0.0.0
+      - FLASK_ENV=development
+    command: flask run --host=0.0.0.0
+    depends_on:
+      - item_service
+
+  item_service:
+    build:
+      context: .
+      dockerfile: Dockerfile_item_service  # Make sure this is the correct path to the item service Dockerfile
+    ports:
+      - "5001:5001"
